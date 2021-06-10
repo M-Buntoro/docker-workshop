@@ -1,0 +1,47 @@
+version: "3"
+
+networks:
+  mynetwork:
+    ipam:
+      config:
+        - subnet: 172.69.0.0/24
+
+services:
+  rng:
+    build: rng
+    ports:
+      - "11991:80"
+    networks:
+      mynetwork:
+        ipv4_address: 172.69.0.6
+
+  hash:
+    build: hash
+    ports:
+      - "11992:80"
+    networks:
+      mynetwork:
+        ipv4_address: 172.69.0.2
+
+  frontpage:
+    build: frontpage
+    ports:
+      - "11980:80"
+    volumes:
+      - "./frontpage/files/:/files/"
+    networks:
+      mynetwork:
+        ipv4_address: 172.69.0.3
+
+  redis:
+    image: redis
+    networks:
+      mynetwork:
+        ipv4_address: 172.69.0.4
+
+  worker:
+    build: worker
+    depends_on:
+      - "redis"
+    networks:
+      mynetwork:
